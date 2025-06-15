@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>幣種詳情</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1 id="coin-name"></h1>
+    <p>價格: <span id="price">0</span> USD</p>
+    <p>24h 漲跌: <span id="change">0</span>%</p>
+    <select id="range" onchange="fetchCoinData()">
+      <option value="1h">1小時</option>
+      <option value="1d" selected>1天</option>
+      <option value="1w">1週</option>
+      <option value="1m">1個月</option>
+    </select>
+    <div class="chart-container">
+      <canvas id="price-chart"></canvas>
+    </div>
+    <a href="trade.html" class="btn btn-primary">交易</a>
+    <a href="index.html" class="btn btn-secondary">返回</a>
+  </div>
+  <script>
+    let priceChart;
+    async function fetchCoinData() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const coinId = urlParams.get('coin_id');
+      const range = document.getElementById('range').value;
+      try {
+        const coinResponse = await axios.get(`http://localhost:3000/api/coins/${coinId}`);
+        const coin = coinResponse.data[0];
+        document.getElementById('coin-name').innerText = `${coin.name} (${coin.symbol})`;
+        document.getElementById('price').innerText = parseFloat(coin.current_price || 0).toFixed(2);
+        document.getElementById('change').innerText = parseFloat(coin.change_24h || 0).toFixed(2);
+
+        const historyResponse = await axios.get(`http://localhost:3000/api/coins/${coinId}/history?range=${range}`);
+        const history = historyResponse.data;
+
+        const ctx = document.getElementById('price-chart').getContext('2d');
+        if (priceChart) priceChart.destroy();
+        priceChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: history.map(h => new Date(h.timestamp).toLocaleString()),
+            datasets: [{
+              label: '價格 (USD)',
+              data: history.map(h => h.price),
+              borderColor: '#1976d2',
+              backgroundColor: 'rgba(25, 118, 210, 0.1)',
+              fill: true
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              x: { display: true },
+              y: { beginAtZero: false }
+            }
+          }
+        });
+      } catch (err) {
+        console.error('獲取數據失敗:', err);
+      }
+    }
+
+    // Binance WebSocket 即時更新
+    const coinSymbols = { 1: 'BTC', 2: 'ETH', 3: 'BNB', 4: 'ADA', 5: 'XRP' };
+    const urlParams = new URLSearchParams(window.location.search);
+    const coinId = urlParams.get('coin_id');
+    const ws = new WebSocket(`wss://stream.binance.com:9443/ws/${coinSymbols[coinId].toLowerCase()}usdt@ticker`);
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      document.getElementById('price').innerText = parseFloat(data.c).toFixed(2);
+    };
+
+    window.onload = fetchCoinData;
+  </script>
+</body>
+</html>

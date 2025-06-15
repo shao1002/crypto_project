@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>登錄</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>登錄</h1>
+    <form id="login-form">
+      <div class="form-group">
+        <label>用戶名</label>
+        <input type="text" class="form-control" id="username" required>
+      </div>
+      <div class="form-group">
+        <label>密碼</label>
+        <input type="password" class="form-control" id="password" required>
+      </div>
+      <button type="submit" class="btn btn-primary">登錄</button>
+      <a href="register.html" class="btn btn-link">註冊</a>
+    </form>
+  </div>
+  <script>
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      try {
+        const response = await axios.post('http://localhost:3000/api/users/login', { username, password });
+        localStorage.setItem('user_id', response.data.user_id);
+        window.location.href = 'index.html';
+      } catch (err) {
+        alert('登錄失敗: ' + err.response.data.message);
+      }
+    });
+  </script>
+</body>
+</html>

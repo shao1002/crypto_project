@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>錢包與交易</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>錢包與交易</h1>
+    <h3>錢包</h3>
+    <ul id="wallet"></ul>
+    <h3>交易</h3>
+    <form id="trade-form">
+      <div class="form-group">
+        <label>幣種</label>
+        <select class="form-control" id="coin_id">
+          <option value="1">BTC</option>
+          <option value="2">ETH</option>
+          <option value="3">BNB</option>
+          <option value="4">ADA</option>
+          <option value="5">XRP</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>類型</label>
+        <select class="form-control" id="type">
+          <option value="BUY">買入</option>
+          <option value="SELL">賣出</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>數量</label>
+        <input type="number" class="form-control" id="amount" step="0.0001" required>
+      </div>
+      <button type="submit" class="btn btn-primary">執行交易</button>
+    </form>
+    <a href="index.html" class="btn btn-secondary mt-3">返回</a>
+  </div>
+  <script>
+    const userId = localStorage.getItem('user_id'); // 假設登錄後儲存
+    async function fetchWallet() {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/users/${userId}/wallet`);
+        const wallet = response.data;
+        const ul = document.getElementById('wallet');
+        ul.innerHTML = '';
+        wallet.forEach(item => {
+          const coin = item.coin_id === 0 ? 'USD' : `Coin ${item.coin_id}`;
+          ul.innerHTML += `<li>${coin}: ${parseFloat(item.balance).toFixed(4)}</li>`;
+        });
+      } catch (err) {
+        console.error('獲取錢包失敗:', err);
+      }
+    }
+
+    document.getElementById('trade-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const coin_id = document.getElementById('coin_id').value;
+      const type = document.getElementById('type').value;
+      const amount = parseFloat(document.getElementById('amount').value);
+      try {
+        await axios.post('http://localhost:3000/api/transactions', { user_id: userId, coin_id, type, amount });
+        alert('交易成功');
+        fetchWallet();
+      } catch (err) {
+        alert('交易失敗: ' + err.response.data.message);
+      }
+    });
+
+    window.onload = fetchWallet;
+  </script>
+</body>
+</html>
