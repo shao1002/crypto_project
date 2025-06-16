@@ -157,7 +157,9 @@ cron.schedule('*/5 * * * *', async () => {
   ];
   for (const coin of coins) {
     try {
-      const response = await axios.get(`https://api.binance.com/api/v3/ticker/price?symbol=${coin.symbol}USDT`);
+      const response = await axios.get(`https://api.binance.com/api/v3/ticker/price?symbol=${coin.symbol}USDT`, {
+        headers: { 'X-MBX-APIKEY': process.env.BINANCE_API_KEY }
+      });
       const price = parseFloat(response.data.price);
       await pool.query('UPDATE coins SET current_price = $1 WHERE coin_id = $2', [price, coin.id]);
       await pool.query('INSERT INTO price_history (coin_id, timestamp, price) VALUES ($1, NOW(), $2)', [coin.id, price]);
@@ -167,5 +169,5 @@ cron.schedule('*/5 * * * *', async () => {
   }
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT; // 移除 || 3000，強制使用環境變量
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
