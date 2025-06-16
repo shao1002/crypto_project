@@ -1,19 +1,21 @@
 {
   "name": "crypto",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
+    "start": "node src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "shao1002 <leejack1002@gmail.com>",
   "license": "ISC",
-  "description": "",
+  "description": "A cryptocurrency price tracking and trading project",
   "dependencies": {
-    "axios": "^1.10.0",
+    "axios": "^1.7.5",
     "cors": "^2.8.5",
-    "express": "^5.1.0",
-    "node-cron": "^4.1.0",
-    "pg": "^8.16.0"
+    "express": "^4.19.2",
+    "node-cron": "^3.0.3",
+    "pg": "^8.16.0",
+    "dotenv": "^16.4.5"
   }
 }

@@ -1,4 +1,5 @@
 -- coins: 儲存幣種資訊
+DROP TABLE IF coins;
 CREATE TABLE coins (
     coin_id SERIAL PRIMARY KEY,
     symbol VARCHAR(10) NOT NULL, -- e.g., BTC
@@ -8,6 +9,7 @@ CREATE TABLE coins (
 );
 
 -- price_history: 儲存歷史價格
+DROP TABLE IF price_history;
 CREATE TABLE price_history (
     history_id SERIAL PRIMARY KEY,
     coin_id INTEGER REFERENCES coins(coin_id),
@@ -16,13 +18,15 @@ CREATE TABLE price_history (
 );
 
 -- users: 用戶
+DROP TABLE IF users;
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     password VARCHAR(50) NOT NULL -- 明文密碼（依你的要求不加密）
 );
 
--- wallets: 錢包
+-- wallets: 錢包;
+DROP TABLE IF wallets;
 CREATE TABLE wallets (
     wallet_id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(user_id),
@@ -31,6 +35,7 @@ CREATE TABLE wallets (
 );
 
 -- transactions: 交易記錄
+DROP TABLE IF transactions;
 CREATE TABLE transactions (
     transaction_id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(user_id),
