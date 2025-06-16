@@ -2,39 +2,36 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>註冊</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="/style.css"> <!-- 假設有 CSS 文件 -->
 </head>
 <body>
-  <div class="container">
-    <h1>註冊</h1>
-    <form id="register-form">
-      <div class="form-group">
-        <label>用戶名</label>
-        <input type="text" class="form-control" id="username" required>
-      </div>
-      <div class="form-group">
-        <label>密碼</label>
-        <input type="password" class="form-control" id="password" required>
-      </div>
-      <button type="submit" class="btn btn-primary">註冊</button>
-      <a href="login.html" class="btn btn-link">已有帳戶？登錄</a>
-    </form>
-  </div>
+  <h2>註冊</h2>
+  <form action="/api/users/register" method="POST">
+    <div>
+      <label for="username">用戶名</label>
+      <input type="text" id="username" name="username" required>
+    </div>
+    <div>
+      <label for="password">密碼</label>
+      <input type="password" id="password" name="password" required>
+    </div>
+    <button type="submit">註冊</button>
+    <p>已有帳戶？<a href="/login.html">登錄</a></p>
+  </form>
+
+  <!-- 可選：簡單的 JavaScript 回饋 -->
   <script>
-    document.getElementById('register-form').addEventListener('submit', async (e) => {
+    document.querySelector('form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-      try {
-        await axios.post('http://localhost:3000/api/users/register', { username, password });
-        alert('註冊成功');
-        window.location.href = 'login.html';
-      } catch (err) {
-        alert('註冊失敗: ' + err.response.data.message);
-      }
+      const formData = new FormData(e.target);
+      const response = await fetch('/api/users/register', {
+        method: 'POST',
+        body: new URLSearchParams(formData)
+      });
+      const result = await response.json();
+      alert(result.message || result.error || '操作失敗');
     });
   </script>
 </body>
